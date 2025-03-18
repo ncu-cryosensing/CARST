@@ -21,7 +21,6 @@ from carst import ConfParams
 from carst.libdhdt import DemPile, onclick_wrapper
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 
 
 parser = ArgumentParser()
