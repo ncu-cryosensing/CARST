@@ -46,7 +46,9 @@ args = parser.parse_args()
 # ==== Read ini file ====
 
 inipath = args.config_file
+
 ini = ConfParams(inipath)
+ini.check_path()
 ini.ReadParam()
 ini.VerifyParam()
 

@@ -101,6 +101,11 @@ class ConfParams:
         # self.demlist = {}
         # self.regression = {}
         # self.result = {}
+    def check_path(self):
+        ini_file = Path(self.fpath)
+        if ini_file.exists() == False:
+            print('File not exists.')
+            exit(1)
 
     def ReadParam(self):
 

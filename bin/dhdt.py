@@ -22,6 +22,7 @@ from carst.libdhdt import DemPile, onclick_wrapper
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 parser = ArgumentParser()
 parser.add_argument('config_file', help='Configuration file')
 parser.add_argument('-s', '--step', help='Do a single step', dest='step')
@@ -30,6 +31,9 @@ args = parser.parse_args()
 # ==== Read ini file ====
 
 inipath = args.config_file
+ini = ConfParams(inipath)
+ini.check_path()
+
 
 # ==== Create a DemPile object and load the config file into the object ====
 
