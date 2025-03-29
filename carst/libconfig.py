@@ -276,7 +276,7 @@ class ConfParams:
         Get DEMs from "csvfile" field. Return a list of SingleRaster objects.
         """
 
-        if 'csvfile' in self.demlist:
+        if hasattr(self, 'demlist') and 'csvfile' in self.demlist:
             csv = CsvTable(self.demlist['csvfile'])
             return csv.GetDEM()
         else:
