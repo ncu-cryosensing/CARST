@@ -4,6 +4,12 @@ from .fixture import test_config_ft
 def test_config_path_storage(test_config_ft):
     assert test_config_ft.fpath == 'tests/data/test_config_featuretrack.ini'
     
+def test_read_params_when_noexist(test_config_ft):
+    test_config_ft.fpath = None
+    with pytest.warns(UserWarning, match="No configuration file is given. No settings are read."):
+        test_config_ft.ReadParam()
+    
+    
 def test_read_params(test_config_ft):
     test_config_ft.ReadParam()
     results = {'image1': 'Demo_Data/LC08_L1TP_170002_20180401_20180416_01_T2_B8_cropped.TIF',
