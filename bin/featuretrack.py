@@ -49,8 +49,8 @@ inipath = args.config_file
 
 ini = ConfParams(inipath)
 ini.check_path()
-ini.ReadParam()
-ini.VerifyParam()
+ini.read_params()
+ini.verify_params()
 
 # ==== Create two SingleRaster object and make them ready for pixel tracking ====
 
@@ -152,5 +152,5 @@ if args.step == 'rmnoise' or args.step is None:
 # import numpy as np
 # inipath = 'defaults.ini'
 # ini = ConfParams(inipath)
-# ini.ReadParam()
-# ini.VerifyParam()
+# ini.read_params()
+# ini.verify_params()

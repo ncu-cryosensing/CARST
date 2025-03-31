@@ -365,7 +365,7 @@ class XYZFile:
 			ubound = offset_median + 3. * offset_mad
 			idx2 = np.logical_and(self.diffval > lbound, self.diffval < ubound)
 			self.diffval_trimmed = self.diffval[idx2]
-			# The return value is ready for CsvTable.SaveData method.
+			# The return value is ready for CsvTable.save_data method.
 			# ['filename', 'date', 'uncertainty', 'mean_offset_wrt_refpts', \
 			#  'trimmed_N', 'trimming_lb', 'trimming_up', 'refpts_file']
 			# 'date' is an empty string since we don't specify any date string in .xyz file.

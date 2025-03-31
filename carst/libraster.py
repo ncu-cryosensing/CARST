@@ -201,40 +201,6 @@ class SingleRaster:
             sys.exit(retcode)
         self.fpath = newpath
 
-    def ReadGeolocPoint(self, x, y, band=1):
-
-        """
-        It's almost the same as gdallocationinfo -geoloc srcfile x y
-        Read a point in the georeferencing system of the raster, and then return the pixel value at that point.
-        Returns NaN if (x, y) is not within the extent of the raster.
-        Still using Gdal.
-        """
-
-        ulx, uly, lrx, lry = self.get_extent()
-        ulx, xres, xskew, uly, yskew, yres  = self.GetGeoTransform()
-        # print('xbound:', ulx, lrx, 'ybound:', uly, lry)
-        # if y > 220000:
-        #   print(x, y, 'xbound:', ulx, lrx, 'ybound:', uly, lry)
-        nodatval = self.get_nodata()
-        if nodatval is None:
-            nodatval = 0
-        
-        if (ulx <= x < lrx) & (uly >= y > lry):
-            ds = gdal.Open(self.fpath)
-            px = int((x - ulx) / xres) # x pixel coor
-            py = int((y - uly) / yres) # y pixel coor
-            dsband = ds.GetRasterBand(band)
-            pixel_val = dsband.ReadAsArray(px, py, 1, 1)   # it numpy.array with shape of (1, 1)
-            pixel_val = float(pixel_val)
-            # print('pixel_val: {}'.format(pixel_val))
-            # print('nodata: {}'.format(self.get_nodata()))
-            # print('abs: {}'.format(abs(pixel_val - self.get_nodata())))
-            if abs(pixel_val - nodatval) < 1:
-                pixel_val = np.nan
-            return pixel_val
-        else:
-            return np.nan
-
     def ReadGeolocPoints(self, x, y, band=1):
 
         """
