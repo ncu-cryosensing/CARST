@@ -1,7 +1,5 @@
 # Class: CsvTable and ConfParams
 # used for dhdt
-# by Whyjay Zheng, Jul 28 2016
-# last edit: Aug 17 2016
 
 import sys
 import csv
@@ -14,6 +12,7 @@ except:
 from carst.libraster import SingleRaster
 from datetime import datetime
 from pathlib import Path
+import warnings
 
 class CsvTable:
 
@@ -101,11 +100,19 @@ class ConfParams:
         # self.demlist = {}
         # self.regression = {}
         # self.result = {}
-    def check_path(self):
-        ini_file = Path(self.fpath)
-        if ini_file.exists() == False:
-            print('File not exists.')
-            exit(1)
+        
+    def check_fpath(self):
+        """
+        If self.fpath is None or does not exist, return False; otherwise return True.
+        """
+        if self.fpath is None:
+            return False
+        else:
+            p = Path(self.fpath)
+        if not p.exists():
+            return False
+        else:
+            return True
 
     def ReadParam(self):
 
@@ -116,7 +123,7 @@ class ConfParams:
         then self.gdalwarp['tr'] = '30 30'
         """
 
-        if self.fpath is not None:
+        if self.check_fpath():
             config = ConfigParser.RawConfigParser()
             config.read(self.fpath)
 
@@ -127,7 +134,7 @@ class ConfParams:
                 setattr(self, section, section_contents)
 
         else:
-            print('Warning: No ini file is given. Nothing will run.')
+            warnings.warn('No configuration file is given. No settings are read.', UserWarning)
 
     def verify_path(self, pathstr):
         """
@@ -276,7 +283,7 @@ class ConfParams:
         Get DEMs from "csvfile" field. Return a list of SingleRaster objects.
         """
 
-        if 'csvfile' in self.demlist:
+        if hasattr(self, 'demlist') and 'csvfile' in self.demlist:
             csv = CsvTable(self.demlist['csvfile'])
             return csv.GetDEM()
         else:

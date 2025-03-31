@@ -23,6 +23,8 @@ wheels/
 MANIFEST
 _version.py
 
+# Test files
+.coverage
 
 **/*~
 **/gmt.history
