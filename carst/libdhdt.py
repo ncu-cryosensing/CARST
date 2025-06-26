@@ -656,11 +656,11 @@ class DemPile(object):
     def read_config(self, ini):
         if type(ini) is str:
             ini = ConfParams(ini)
-            ini.ReadParam()
-            ini.VerifyParam()
+            ini.read_params()
+            ini.verify_params()
         self.picklepath = ini.result['picklefile']
         self.dhdtprefix = ini.result['dhdt_prefix']
-        self.add_dem(ini.GetDEM())
+        self.add_dem(ini.get_dem())
         self.sort_by_date()
         self.set_refgeo(ini.refgeometry['gtiff'])
         self.set_refdate(ini.settings['refdate'])

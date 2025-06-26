@@ -1,18 +1,14 @@
 # Class: CsvTable and ConfParams
-# used for dhdt
 
 import sys
 import csv
 import os
 import numpy as np
-try:
-	import ConfigParser                    # python 2
-except:
-	import configparser as ConfigParser    # python 3
+import configparser
 from carst.libraster import SingleRaster
 from datetime import datetime
 from pathlib import Path
-import warnings
+# import warnings
 
 class CsvTable:
 
@@ -23,83 +19,29 @@ class CsvTable:
 	def __init__(self, fpath=None, data=[]):
 		self.fpath = fpath
 		self.data = data
-		self.python_version = sys.version_info[0]      # detecting python 2 or 3, for csv module
-		self.read_pythonver_dict = {2: 'rb', 3: 'r'}   # csv module in python 2/3 runs differently
-		self.write_pythonver_dict = {2: 'wb', 3: 'w'}  # csv module in python 2/3 runs differently
 
-
-	def GetDEM(self, delimiter=','):
+	def get_dem(self, delimiter=','):
 
 		"""
 		Get DEMs from the contents of this csv file. Return a list of SingleRaster objects.
 		"""
 
 		dems = []
-		with open(self.fpath, self.read_pythonver_dict[self.python_version]) as csvfile:
+		with open(self.fpath, 'r') as csvfile:
 			csvcontent = csv.reader(csvfile, skipinitialspace=True, delimiter=delimiter)
 			next(csvcontent, None)    # Skip the header
 			for row in csvcontent:
 				dems.append(SingleRaster(*row[:3]))
 		return dems
 
-	def GetImgPair(self, delimiter=','):
-
-		"""
-		Get ImgPair from the contents of this csv file
-		"""
-
-		imgpairs = []
-		with open(self.fpath, self.read_pythonver_dict[self.python_version]) as csvfile:
-			csvcontent = csv.reader(csvfile, skipinitialspace=True, delimiter=delimiter)
-			for row in csvcontent:
-				row_obj = [SingleRaster(i) for i in row[:2]]
-				imgpairs.append(row_obj)
-		return imgpairs
-
-	def SaveData(self, data):
-
-		"""
-		Save given data (a list of csv infor) to this object. Used to create a csv table (with Write2File).
-		"""
-
-		if not self.data:
-			self.data.append(data)
-		elif len(self.data[0]) == len(data):
-			self.data.append(data)
-		else:
-			print('Warning: The length of the input data is not same with the previous data. Do nothing.')
-
-	def Write2File(self):
-
-		"""
-		Write self.data to self.fname. Be cautious! This may overwirte previous csvfile content.
-		Header is pre-defined. That means each column has been specified.
-		"""
-
-		if self.data:
-			header = ['filename', 'date', 'uncertainty', 'mean_offset_wrt_refpts', \
-					  'trimmed_N', 'trimming_lb', 'trimming_up', 'refpts_file']
-			with open(self.fpath, self.write_pythonver_dict[self.python_version]) as csvfile:
-				# python 3 should be open(fname, 'w', newline='') and we didn't add argument "newline" here. 
-				# I don't know if it would cause some issues or not?
-				csvwriter = csv.writer(csvfile, delimiter=',')
-				csvwriter.writerow(header)
-				for row in self.data:
-					csvwriter.writerow(row)
-
-
 class ConfParams:
 
     """
-    Read variables in a configuration file. The file should have the specified structure like CARST/dhdt/defaults.ini
+    Read variables in a configuration file. The file should have the specified structure; see documentaion.
     """
 
     def __init__(self, fpath=None):
         self.fpath = fpath
-        # self.gdalwarp = {}
-        # self.demlist = {}
-        # self.regression = {}
-        # self.result = {}
         
     def check_fpath(self):
         """
@@ -108,13 +50,12 @@ class ConfParams:
         if self.fpath is None:
             return False
         else:
-            p = Path(self.fpath)
-        if not p.exists():
-            return False
-        else:
-            return True
+            if not Path(self.fpath).exists():
+                return False
+            else:
+                return True
 
-    def ReadParam(self):
+    def read_params(self):
 
         """
         Read parameters and save them as self.xxxx
@@ -124,7 +65,7 @@ class ConfParams:
         """
 
         if self.check_fpath():
-            config = ConfigParser.RawConfigParser()
+            config = configparser.RawConfigParser()
             config.read(self.fpath)
 
             for section in config.sections():
@@ -134,11 +75,13 @@ class ConfParams:
                 setattr(self, section, section_contents)
 
         else:
-            warnings.warn('No configuration file is given. No settings are read.', UserWarning)
+            raise FileNotFoundError(f'Configuration file ({self.fpath}) does not exist.')
+            # warnings.warn('No configuration file is given. No settings are read.', UserWarning)
 
     def verify_path(self, pathstr):
         """
-        Verify and replace a file path. (now accepting absolute and relative (to the ini file) paths)
+        Check if a path (absolute path or relative to the configuration file folder) exists. 
+        Return that valid path if it exists. Otherwise, raise FileNotFoundError. 
         """
         pathobj = Path(pathstr)
         if pathobj.exists():
@@ -148,9 +91,9 @@ class ConfParams:
             if relative_pathobj.exists():
                 return str(relative_pathobj)
             else:
-                raise AssertionError(f'{pathstr} or {relative_pathobj} does not exist.')
+                raise FileNotFoundError(f'The specified file ({pathstr} or {relative_pathobj}) does not exist.')
 
-    def VerifyParam(self):
+    def verify_params(self):
 
         """
         Verify params and modify them to proper types.
@@ -175,17 +118,6 @@ class ConfParams:
         if hasattr(self, 'regression'):
             for key in self.regression:
                 self.regression[key] = int(self.regression[key])
-        if hasattr(self, 'gdalwarp'):
-            if 'output_dir' in self.gdalwarp:
-                if not os.path.exists(self.gdalwarp['output_dir']):
-                    os.makedirs(self.gdalwarp['output_dir'])    # create gdalwarp output folder
-        if hasattr(self, 'splitampcor'):
-            for key in self.splitampcor:
-                self.splitampcor[key] = int(self.splitampcor[key])
-        if hasattr(self, 'parallel'):
-            if 'gnu_parallel' in self.parallel:
-                s = self.parallel['gnu_parallel'].lower()
-                self.parallel['gnu_parallel'] = s in ['true', 't', 'yes', 'y', '1']
         if hasattr(self, 'pxsettings'):
             for key in self.pxsettings:
                 if not self.pxsettings[key]:
@@ -259,25 +191,14 @@ class ConfParams:
         if hasattr(self, 'noiseremoval'):
             for key in self.noiseremoval:
                 self.noiseremoval[key] = float(self.noiseremoval[key])
+        # if hasattr(self, 'result'):
+        #     if 'picklefile' in self.result:
+        #         self.result['picklefile'] = self.verify_path(self.result['picklefile'])
+        #     if 'dhdt_prefix' in self.result:
+        #         self.result['dhdt_prefix'] = self.verify_path(self.result['dhdt_prefix'])
+        
 
-
-    """
-    # ======== Check if PAIRS_DIR, METADATA_DIR, and PAIRS exist ========
-    if not os.path.exists(PAIRS_DIR):
-        print("\n***** ERROR: Pair directory specified (\"" + PAIRS_DIR + "\") not found, make sure full path is provided, exiting...\n");
-        sys.exit(1)
-
-    if not os.path.exists(METADATA_DIR):
-        print("\n***** ERROR: Metadata directory specified (\"" + METADATA_DIR + "\") not found, make sure full path is provided, exiting...\n");
-        sys.exit(1)
-
-    if not os.path.exists(PAIRS):
-        print("\n***** ERROR: Pair list \"" + PAIRS + "\" not found, make sure full path is provided, exiting...\n");
-    # ===================================================================
-    """
-
-
-    def GetDEM(self):
+    def get_dem(self):
 
         """
         Get DEMs from "csvfile" field. Return a list of SingleRaster objects.
@@ -285,58 +206,7 @@ class ConfParams:
 
         if hasattr(self, 'demlist') and 'csvfile' in self.demlist:
             csv = CsvTable(self.demlist['csvfile'])
-            return csv.GetDEM()
+            return csv.get_dem()
         else:
             print('Warning: No DEM-list file is given. Nothing will run.')
             return []
-
-    def GetImgPair(self, delimiter=','):
-
-        """
-        Get ImgPair from the contents of this csv file
-        """
-
-        if 'pairs_list' in self.io:
-            csv = CsvTable(self.io['pairs_list'])
-            return csv.GetImgPair(delimiter=delimiter)
-        else:
-            print('Warning: No Img-list file is given. Nothing will run.')
-            return []
-
-
-class LS8MTL:
-
-	def __init__(self, fpath=None):
-		self.fpath = fpath
-
-	def fit_LS8metadata_to_configparser(MTL_file):
-		for line in MTL_file:
-			# Skip last line ("END") and the "END_GROUP" line.
-			if ('=' in line) and ('END_GROUP' not in line):
-				# Modify "GROUP = BLABLA" into "[BLABLA]" (in order to make headers for configparser)
-				if 'GROUP' in line:
-					line = '[' + line.rstrip().split(' ')[-1] + ']\n'
-				yield line
-
-	def ReadParam(self):
-
-		"""
-		Read parameters and save them as self.xxxx
-		example: if there is a section called "GROUP = PRODUCT_METADATA"
-		and there is an option named "DATE_ACQUIRED = 2016-07-18"
-		then self.PRODUCT_METADATA['date_acquired'] = '2016-07-18'
-		"""
-
-		if self.fpath is not None:
-			config = ConfigParser.RawConfigParser()
-			config.read_file(fit_LS8metadata_to_configparser(open(self.fpath)))
-
-			for section in config.sections():
-				section_contents = {}
-				for item in config.items(section):
-					section_contents[item[0]] = item[1]
-				setattr(self, section, section_contents)
-
-		else:
-			print('Warning: No MTL file is given. Nothing will run.')
-

@@ -32,7 +32,6 @@ args = parser.parse_args()
 
 inipath = args.config_file
 ini = ConfParams(inipath)
-ini.check_path()
 
 
 # ==== Create a DemPile object and load the config file into the object ====
@@ -84,8 +83,8 @@ else:
 # from UtilFit import DemPile
 # inipath = 'defaults.ini'
 # ini = ConfParams(inipath)
-# ini.ReadParam()
-# ini.VerifyParam()
-# demlist = ini.GetDEM()
+# ini.read_params()
+# ini.verify_params()
+# demlist = ini.get_dem()
 # a = DemPile()
 # a.ReadConfig(ini)

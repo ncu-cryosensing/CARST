@@ -1,0 +1,10 @@
+# Table of contents for the CARST manual
+# See https://jupyterbook.org/en/stable/customize/toc.html
+format: jb-book
+root: index
+chapters:
+  - file: dhdt
+  - file: dhdt_demo
+  - file: featuretrack
+  # - file: dhdt/dhdt_workflow
+  # - file: CARST_workflow 

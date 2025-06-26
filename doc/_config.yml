@@ -1,0 +1,20 @@
+# Jupyter Book settings
+# For more options see https://jupyterbook.org/en/stable/customize/config.html
+
+book_title: "CARST Manual"
+author: "CARST Developers"
+language: en
+logo: ""
+repository:
+  url: https://github.com/ncu-cryosensing/CARST
+  path_to_book: doc/
+  branch: main
+html:
+  favicon: ""
+  use_repository_button: true
+  use_issues_button: true
+  use_edit_page_button: true
+  extra_navbar: ""
+  extra_footer: ""
+execute:
+  execute_notebooks: "off" 

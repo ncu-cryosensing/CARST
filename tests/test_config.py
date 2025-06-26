@@ -7,11 +7,11 @@ def test_config_path_storage(test_config_ft):
 def test_read_params_when_noexist(test_config_ft):
     test_config_ft.fpath = None
     with pytest.warns(UserWarning, match="No configuration file is given. No settings are read."):
-        test_config_ft.ReadParam()
+        test_config_ft.read_params()
     
     
 def test_read_params(test_config_ft):
-    test_config_ft.ReadParam()
+    test_config_ft.read_params()
     results = {'image1': 'Demo_Data/LC08_L1TP_170002_20180401_20180416_01_T2_B8_cropped.TIF',
                'image2': 'Demo_Data/LC08_L1TP_170002_20180417_20180501_01_T2_B8_cropped.TIF',
                'image1_date': '2018-04-01',
@@ -19,13 +19,13 @@ def test_read_params(test_config_ft):
     assert test_config_ft.imagepair == results
     
 def test_verify_params(test_config_ft):
-    test_config_ft.ReadParam()
-    test_config_ft.VerifyParam()
+    test_config_ft.read_params()
+    test_config_ft.verify_params()
     assert type(test_config_ft.pxsettings['refwindow_x']) == int
     
 def test_get_dems_negative(test_config_ft):
-    test_config_ft.ReadParam()
-    test_config_ft.VerifyParam()
+    test_config_ft.read_params()
+    test_config_ft.verify_params()
     results = []
-    assert test_config_ft.GetDEM() == results
+    assert test_config_ft.get_dem() == results
 
