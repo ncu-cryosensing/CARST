@@ -8,7 +8,7 @@ import configparser
 from carst.libraster import SingleRaster
 from datetime import datetime
 from pathlib import Path
-import warnings
+# import warnings
 
 class CsvTable:
 
@@ -50,11 +50,10 @@ class ConfParams:
         if self.fpath is None:
             return False
         else:
-            p = Path(self.fpath)
-        if not p.exists():
-            return False
-        else:
-            return True
+            if not Path(self.fpath).exists():
+                return False
+            else:
+                return True
 
     def read_params(self):
 
@@ -76,11 +75,13 @@ class ConfParams:
                 setattr(self, section, section_contents)
 
         else:
-            warnings.warn('No configuration file is given. No settings are read.', UserWarning)
+            raise FileNotFoundError(f'Configuration file ({self.fpath}) does not exist.')
+            # warnings.warn('No configuration file is given. No settings are read.', UserWarning)
 
     def verify_path(self, pathstr):
         """
-        Verify and replace a file path. (now accepting absolute and relative (to the ini file) paths)
+        Check if a path (absolute path or relative to the configuration file folder) exists. 
+        Return that valid path if it exists. Otherwise, raise FileNotFoundError. 
         """
         pathobj = Path(pathstr)
         if pathobj.exists():
@@ -90,7 +91,7 @@ class ConfParams:
             if relative_pathobj.exists():
                 return str(relative_pathobj)
             else:
-                raise AssertionError(f'{pathstr} or {relative_pathobj} does not exist.')
+                raise FileNotFoundError(f'The specified file ({pathstr} or {relative_pathobj}) does not exist.')
 
     def verify_params(self):
 
@@ -190,6 +191,12 @@ class ConfParams:
         if hasattr(self, 'noiseremoval'):
             for key in self.noiseremoval:
                 self.noiseremoval[key] = float(self.noiseremoval[key])
+        # if hasattr(self, 'result'):
+        #     if 'picklefile' in self.result:
+        #         self.result['picklefile'] = self.verify_path(self.result['picklefile'])
+        #     if 'dhdt_prefix' in self.result:
+        #         self.result['dhdt_prefix'] = self.verify_path(self.result['dhdt_prefix'])
+        
 
     def get_dem(self):
 

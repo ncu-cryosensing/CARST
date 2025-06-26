@@ -48,7 +48,6 @@ args = parser.parse_args()
 inipath = args.config_file
 
 ini = ConfParams(inipath)
-ini.check_path()
 ini.read_params()
 ini.verify_params()
 

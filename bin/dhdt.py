@@ -32,7 +32,6 @@ args = parser.parse_args()
 
 inipath = args.config_file
 ini = ConfParams(inipath)
-ini.check_path()
 
 
 # ==== Create a DemPile object and load the config file into the object ====
