@@ -265,6 +265,7 @@ def wl_reg(xx, yy, ye=None, min_datapoints=4, min_time_span=365):
     else:
         exitstate = -1
         y_prediction = np.full_like(x_pred_pos, np.nan)
+        slope, slope_stderr = -9999.0, -9999.0
         return x_pred_pos, y_prediction, slope, slope_stderr, duration, exitstate
     
 
